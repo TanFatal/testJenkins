@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+https://go.microsoft.com/fwlink/?LinkID=208121.
+-->
+<Project>
+  <PropertyGroup>
+    <_PublishTargetUrl>D:\DuyTan\DevOPs\jenkinsDemo\Ecommerce-official-2\back-end\bin\Release\net6.0\publish\</_PublishTargetUrl>
+    <History>True|2025-07-21T07:43:49.9870761Z;</History>
+    <LastFailureDetails />
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+  </PropertyGroup>
+</Project>
