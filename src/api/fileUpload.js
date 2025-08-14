@@ -3,7 +3,7 @@ import { API_BASE_URL, getHeaders } from "./constant";
 
 
 export const fileUploadAPI = async (data)=>{
-    const url = API_BASE_URL + `/test/file`;
+    const url = API_BASE_URL + `/test/api/file`;
     try{
         const response = await axios(url,{
             method:"POST",
