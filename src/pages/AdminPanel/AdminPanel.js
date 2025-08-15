@@ -20,7 +20,6 @@ const httpClient = (url, options = {}) => {
   options.headers.set("Authorization", `Bearer ${token}`);
   return fetchUtils.fetchJson(url, options);
 };
-
 const dataProvider = withLifecycleCallbacks(
   simpleRestProvider("http://3.25.91.236:8088/test/api", httpClient),
   [
@@ -31,32 +30,51 @@ const dataProvider = withLifecycleCallbacks(
         let requestBody = {
           ...params,
         };
+        
+        // Kiểm tra xem có phải là create hay update
+        const isCreate = !params.id;
+        console.log("Is Create:", isCreate);
+        
         let productResList = params?.productResources ?? [];
-        const fileName = params?.thumbnail?.rawFile?.name?.replaceAll(" ", "-");
-        const formData = new FormData();
-        formData.append("file", params?.thumbnail?.rawFile);
-        formData.append("fileName", fileName);
 
-        const thumbnailResponse = await fileUploadAPI(formData);
-        requestBody.thumbnail = thumbnailResponse;
+        // Chỉ upload thumbnail nếu có file mới (rawFile)
+        if (params?.thumbnail?.rawFile) {
+          const fileName = params?.thumbnail?.rawFile?.name?.replaceAll(" ", "-");
+          const formData = new FormData();
+          formData.append("file", params?.thumbnail?.rawFile);
+          formData.append("fileName", fileName);
 
+          const thumbnailResponse = await fileUploadAPI(formData);
+          requestBody.thumbnail = thumbnailResponse;
+        } else {
+          // Giữ nguyên thumbnail cũ nếu không có file mới
+          requestBody.thumbnail = params.thumbnail;
+        }
+
+        // Xử lý product resources
         const newProductResList = await Promise.all(
           productResList?.map(async (productResource) => {
-            const fileName = productResource?.url?.rawFile?.name?.replaceAll(
-              " ",
-              "-"
-            );
-            const formData = new FormData();
-            formData.append("file", productResource?.url?.rawFile);
-            formData.append("fileName", fileName);
-            const fileUploadRes = await fileUploadAPI(formData);
-            return {
-              ...productResource,
-              url: fileUploadRes,
-            };
+            // Chỉ upload nếu có rawFile (file mới)
+            if (productResource?.url?.rawFile) {
+              const fileName = productResource?.url?.rawFile?.name?.replaceAll(
+                " ",
+                "-"
+              );
+              const formData = new FormData();
+              formData.append("file", productResource?.url?.rawFile);
+              formData.append("fileName", fileName);
+              const fileUploadRes = await fileUploadAPI(formData);
+              return {
+                ...productResource,
+                url: fileUploadRes,
+              };
+            } else {
+              // Giữ nguyên URL cũ nếu không có file mới
+              return productResource;
+            }
           })
         );
-        //console.log("Params ",params,fileName);
+
         const request = {
           ...requestBody,
           productResources: newProductResList,
